@@ -41,8 +41,9 @@ Running the following command will install the AWSPowershell module into the Doc
 
 ## Author(s)
 
-* <b>Jeremy Henson</b> 
+* <b>Jeremy Henson</b>
+* <b>Viet Nguyen</b> 
 
-> Note: I hope more members of the team will contribute to this repository.
+> Note: I stole this template from Veit
 
 **[⬆ back to top](#documentation)**
