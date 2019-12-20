@@ -30,7 +30,7 @@ To install this module run the following command in a powershell prompt
  - Invoke-Expression ('$Module="InstallFromGitHub";$User="nditech";$Repo="Tech-PowershellModules";'+(new-objecttnet.webclient).DownloadString('https://raw.githubusercontent.com/PsModuleInstall/InstallFromGithub/master/install.ps1'))
 
 Once InstallFromGitHub is installed, additional modules can be installed from within powershell by running
- - Intall-GitHubModule -User nditech -Repo Tech-PowershellModules -Module <<Name of Module>>
+ - Intall-GitHubModule -User nditech -Repo Tech-PowershellModules -Module {Name of Module}
 
 ## Demo
 
