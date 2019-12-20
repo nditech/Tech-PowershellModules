@@ -11,7 +11,7 @@
 ### Table of Contents
 
 1. [Intro](#intro)
-2. [Getting Started](#getting started)
+2. [Getting Started](#getting-started)
 
 ## Intro
 
