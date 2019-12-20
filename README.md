@@ -27,7 +27,7 @@ Installing this module is required to run the "Install-GitHubModule" function wi
 
 To install this module run the following command in a powershell prompt
 
- - Invoke-Expression ('$Module="InstallFromGitHub";$User="nditech";$Repo="Tech-PowershellModules";'+(new-objecttnet.webclient).DownloadString('https://raw.githubusercontent.com/PsModuleInstall/InstallFromGithub/master/install.ps1'))
+ - Invoke-Expression ('$Module="InstallFromGitHub";$User="nditech";$Repo="Tech-PowershellModules";'+(new-objecttnet.webclient).DownloadString('<div style="display: inline">https://raw.githubusercontent.com/PsModuleInstall/InstallFromGithub/master/install.ps1</div>'))
  
 The command above, along with thing InstallFromGitHub module, makes use of [stadub's script](https://github.com/PsModuleInstall/FromGithub)
 
