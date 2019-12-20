@@ -16,7 +16,7 @@
 
 ## Intro
 
-A place to get custom powershell written for use within NDI.
+A place to get custom powershell modules written for use within NDI.
 
 **[⬆ back to top](#documentation)**
 
