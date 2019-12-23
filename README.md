@@ -32,12 +32,12 @@ To install this module run the following command in a powershell prompt
 The command above, along with thing InstallFromGitHub module, makes use of [stadub's script](https://github.com/PsModuleInstall/FromGithub)
 
 Once InstallFromGitHub is installed, additional modules can be installed from within powershell by running
- - Install-GitHubModule -User nditech -Repo Tech-PowershellModules -Module [Name of Module]
+ - `Install-GitHubModule -User nditech -Repo Tech-PowershellModules -Module [Name of Module]`
 
 ## Demo
 
 Running the following command will install the AWSPowershell module into the Documents/WindowsPowerShell/Modules directory
- - Install-GitHubModule -User nditech -Repo Tech-PowershellModules -Module AWSPowershell 
+ - `Install-GitHubModule -User nditech -Repo Tech-PowershellModules -Module AWSPowershell`
 
 **[⬆ back to top](#documentation)**
 
