@@ -1,9 +1,11 @@
-﻿function Backup-AWS {
+# This module takes data from a CSV that Backupify sends of decomissioned users in Gsuite.  (The CSV has three main fields: UID, G-Data type (GMAIL| Docs|Contacts | Calandar ); the URL to retreive the Backupify data ) The module then formats the folder structure for S3 and uploads the data to the S3 bucket specified. 
+
+function Backup-AWS {
     param (
         [Parameter(Mandatory=$true)]
         [String[]]
-        $BackupifyList,
-        $BucketName
+        $BackupifyList, #this is the csv that backupify sends us with the accounts in gSuite of old(?) ndi staff who'se accounts will get pushed to a S3 bucket.
+        $BucketName # this is the S3 bucket to push the backup files to for the users in the BackupifyList variable (CSV)
     )
 
 
