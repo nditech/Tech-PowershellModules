@@ -80,6 +80,7 @@ param(
 	[Parameter(Mandatory=$False,ValueFromPipeline=$True,ValueFromPipelineByPropertyName=$True,Position=0)][alias("DNSHostName","ComputerName","Computer")] [String[]] $Name = @("localhost"),
 	[Parameter(Mandatory=$False)] [String] $OutputFile = "", 
 	[Parameter(Mandatory=$False)] [String] $GroupTag = "",
+	[Parameter(Mandatory=$False)] [String] $AssignedUser = "",
 	[Parameter(Mandatory=$False)] [Switch] $Append = $false,
 	[Parameter(Mandatory=$False)] [System.Management.Automation.PSCredential] $Credential = $null,
 	[Parameter(Mandatory=$False)] [Switch] $Partner = $false,
@@ -180,7 +181,7 @@ Process
 			#	"Device Name" = $model
 
 		}
-		elseif ($GroupTag -ne "")
+		elseif ($GroupTag -ne "" -Or $AssignedUser -ne "")
 		{
 			# Create a pipeline object
 			$c = New-Object psobject -Property @{
@@ -188,6 +189,7 @@ Process
 				"Windows Product ID" = $product
 				"Hardware Hash" = $hash
 				"Group Tag" = $GroupTag
+				"Assigned User" = $AssignedUser
 			}
 		}
 		else
@@ -234,9 +236,9 @@ End
 		{
 			$computers | Select "Device Serial Number", "Windows Product ID", "Hardware Hash", "Manufacturer name", "Device model" | ConvertTo-CSV -NoTypeInformation | % {$_ -replace '"',''} | Out-File $OutputFile
 		}
-		elseif ($GroupTag -ne "")
+		elseif ($GroupTag -ne "" -Or $AssignedUser -ne "")
 		{
-			$computers | Select "Device Serial Number", "Windows Product ID", "Hardware Hash", "Group Tag" | ConvertTo-CSV -NoTypeInformation | % {$_ -replace '"',''} | Out-File $OutputFile
+			$computers | Select "Device Serial Number", "Windows Product ID", "Hardware Hash", "Group Tag", "Assigned User" | ConvertTo-CSV -NoTypeInformation | % {$_ -replace '"',''} | Out-File $OutputFile
 		}
 		else
 		{
