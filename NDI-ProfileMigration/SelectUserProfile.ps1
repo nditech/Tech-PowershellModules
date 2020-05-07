@@ -14,8 +14,13 @@ function Select-UserProfile{
 
 $UserProfiles = $Profile.ProfileImagePath -like "*Users*"
 
-$global:SelectedProfile = $UserProfiles | Out-GridView -PassThru -Title 'Select User to Backup'
+$global:SelectedProfile = $UserProfiles | Out-GridView -PassThru -Title 'Select User to Backup or Restore'
 $global:Username = Split-Path $SelectedProfile -Leaf
+
+$global:Folders = "Desktop", "Downloads", "Favorites", "Documents",
+"Music", "Pictures", "Videos", "AppData\Local\Mozilla",
+"AppData\Local\Google", "AppData\Roaming\Mozilla"
+
 }
 
 Export-ModuleMember -Function Select-UserProfile

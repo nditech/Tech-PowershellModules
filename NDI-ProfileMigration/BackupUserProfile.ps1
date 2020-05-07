@@ -7,10 +7,6 @@ function Backup-UserProfile {
         $Destination = "C:\Backup"
     )
 
-    $global:Folders = "Desktop", "Downloads", "Favorites", "Documents",
-               "Music", "Pictures", "Videos", "AppData\Local\Mozilla",
-               "AppData\Local\Google", "AppData\Roaming\Mozilla"
-
     write-host -ForegroundColor Green "Backing up data from local machine for $Username"
         
         foreach ($Folder in $Folders){

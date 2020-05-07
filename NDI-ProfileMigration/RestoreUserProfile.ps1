@@ -17,11 +17,11 @@ function Restore-UserProfile {
             $LocalFolder = $CurrentProfile + "\" + $Folder
             $BackupFolder = $Destination + "\" + $Username + "\" + $Folder
             write-host -ForegroundColor cyan "  $Folder..."
-            Copy-Item -Recurse -Force $BackupFolder $CurrentProfile
+            Copy-Item -ErrorAction SilentlyContinue -Recurse -Force $BackupFolder $CurrentProfile
                    
-                if ($Folder -eq "AppData\Local\Mozilla") { rename-item $LocalFolder "$LocalFolder.old" }
-                if ($Folder -eq "AppData\Roaming\Mozilla") { rename-item $LocalFolder "$LocalFolder.old" }
-                if ($Folder -eq "AppData\Local\Google") { rename-item $LocalFolder "$LocalFolder.old" }
+                if ($Folder -eq "AppData\Local\Mozilla") { rename-item -ErrorAction SilentlyContinue $LocalFolder "$LocalFolder.old" }
+                if ($Folder -eq "AppData\Roaming\Mozilla") { rename-item -ErrorAction SilentlyContinue $LocalFolder "$LocalFolder.old" }
+                if ($Folder -eq "AppData\Local\Google") { rename-item -ErrorAction SilentlyContinue $LocalFolder "$LocalFolder.old" }
                
             }
 
@@ -30,4 +30,4 @@ function Restore-UserProfile {
     
 }
 
-Export-ModuleMember -Function Restore-UserProfile
+#Export-ModuleMember -Function Restore-UserProfile
