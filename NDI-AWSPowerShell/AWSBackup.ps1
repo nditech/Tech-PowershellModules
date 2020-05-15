@@ -44,7 +44,7 @@ foreach ($address in $addresses){
 
         $Key = "$Root/$Folder/$filename"
 
-        Write-S3Object -BucketName $BucketName -File $output -Key $Key -ProfileName BackupifyCache
+        Write-S3Object -BucketName $BucketName -File $output -Key $Key -ProfileName CachedMFA
 		
 		Write-Output "Time taken to upload $($filename): $((Get-Date).Subtract($start_time).Minutes) Minutes(s)"
 
