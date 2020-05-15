@@ -1,33 +1,43 @@
 ﻿function Invoke-AWSAssumeRole {
     param (
         [Parameter(Mandatory=$true)]
-        [String]$AWSProfile, $MFASerial, $RoleArn,
-        [Long]$Duration_Hours
+        [String]$AWSProfile, $RoleArn,
+        [Parameter(Mandatory=$false)]
+        [Long]$Duration_Hours = 1
 
     )
+    
+    Set-AWSCredential -ProfileName $AWSProfile
     $Duration_Seconds = $Duration_Hours * 3600
-    $AWSCreds = "$env:USERPROFILE\.aws\credentials"
-    $Credentials = Get-Content -Path $env:USERPROFILE\.aws\credentials
+    $MFASerial = (Get-IAMMFADevice).SerialNumber
 
     do{
         $MFAToken = Read-Host "Please enter a valid 6 digit MFA Code:"
         }
         while($MFAToken.Length -ne 6)
     
-    $global:sessionInfo = aws sts assume-role --role-arn $($RoleArn) --role-session-name Backupify --serial-number $($MFASerial) --token-code $($MFAToken) --duration-seconds $Duration_Seconds
-    
-    $sessionHash = $sessionInfo | ConvertFrom-Json
-    
-    $AccessKey = $sessionHash.Credentials.AccessKeyId
-    $SecretKey = $sessionHash.Credentials.SecretAccessKey
-    $Token = $sessionHash.Credentials.SessionToken
-    
-    $Credentials[11] = "aws_access_key_id = $AccessKey"
-    $Credentials[12] = "aws_secret_access_key = $SecretKey"
-    $Credentials[13] = "aws_session_token = $Token"
-    
-    $Credentials | Set-Content -Path $AWSCreds
+    $global:AssumedRole = aws sts assume-role --role-arn $($RoleArn) --role-session-name Backupify --serial-number $($MFASerial) --token-code $($MFAToken) --duration-seconds $Duration_Seconds
 
-    }
+    $AssumedRoleHash = $AssumedRole | ConvertFrom-Json
+    
+    $global:AccessKey = $AssumedRoleHash.Credentials.AccessKeyId
+    $global:SecretKey = $AssumedRoleHash.Credentials.SecretAccessKey
+    $global:Token = $AssumedRoleHash.Credentials.SessionToken
+
+}
+
+function Set-AWSAssumeRole {
+
+    Set-AWSCredential -AccessKey $AccessKey -SecretKey $SecretKey -SessionToken $Token -Scope Global
+
+}
+
+function Get-AWSAssumeRole {
+
+    $AssumedRole
+
+}
 
 Export-ModuleMember -Function Invoke-AWSAssumeRole
+Export-ModuleMember -Function Set-AWSAssumeRole
+Export-ModuleMember -Function Get-AWSAssumeRole

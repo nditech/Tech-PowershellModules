@@ -1,8 +1,9 @@
-function Set-MFASession {
+function Invoke-MFASession {
     param (
         [Parameter(Mandatory=$true)]
         [String]$AWSProfile,
-        [Long]$Duration_Hours
+        [Parameter(Mandatory=$false)]
+        [Long]$Duration_Hours = 1
 
     )
     $Duration_Seconds = $Duration_Hours * 3600
@@ -14,7 +15,6 @@ function Set-MFASession {
         while($MFAToken.Length -ne 6)
 
     $global:MFASession = Get-STSSessionToken -SerialNumber (Get-IAMMFADevice).SerialNumber -TokenCode $MFAToken -DurationInSeconds $Duration_Seconds
-    Set-AWSCredential -Credential $MFASession -Scope Global
 
     }
 
@@ -24,5 +24,12 @@ function Get-MFASession {
     
 }
 
-Export-ModuleMember -Function Get-MFASession
+function Set-MFASession {
+        
+    Set-AWSCredential -Credential $MFASession -Scope Global
+    
+}
+
 Export-ModuleMember -Function Set-MFASession
+Export-ModuleMember -Function Get-MFASession
+Export-ModuleMember -Function Invoke-MFASession
