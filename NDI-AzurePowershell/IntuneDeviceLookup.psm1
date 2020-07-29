@@ -36,6 +36,7 @@ function Get-IntuneDevice {
 
     $customObj | Format-Table -AutoSize
 }
+
 function Get-AllIntuneDevice {
 
   <#
