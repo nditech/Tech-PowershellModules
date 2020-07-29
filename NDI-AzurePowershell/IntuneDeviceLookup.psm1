@@ -39,9 +39,8 @@ function Get-IntuneDevice {
 function Get-IntuneDevices {
 
   param (
-      [Parameter(Mandatory=$true)]
-      [String]
-      $Username
+      [Parameter(Mandatory=$true)][String]$Username,
+      [Parameter(Mandatory=$false)][String]$Path
   )
   
   Connect-Graph -Username $Username
@@ -61,8 +60,12 @@ function Get-IntuneDevices {
     $Output += $customObj
 
     }
-
-  $Output | Format-Table -AutoSize
+  if ($Path) {
+    $Output | Export-Csv -Path $Path
+  }
+  else {
+    $Output | Format-Table -AutoSize
+  }
 
 }
 
