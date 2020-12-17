@@ -17,7 +17,7 @@
     #>
 
     param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$false)]
         [String]
         $Path
     )
@@ -51,7 +51,18 @@ foreach ($Group in $FieldComputerGroups){
     Clear-Variable -Name Admin
         }
 
+    if ($Path){
+
     $Output | Export-Csv -NoTypeInformation -Path "$Path\Enrollments.csv"
+    
     }
+
+    else{
+
+    $Output | Sort-Object
+
+    }
+
+}
 
 Export-ModuleMember -Function Get-FieldEnrollment
