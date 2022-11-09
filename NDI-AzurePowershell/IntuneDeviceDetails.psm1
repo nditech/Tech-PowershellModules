@@ -1,9 +1,11 @@
-﻿function Get-LastLoggedOn {
+function Get-LastLoggedOn {
 
     param (
         [Parameter(Mandatory=$true)]
         [String]
-        $DeviceName)
+        $DeviceName,
+        $Username
+    )
 
     $MangedDevice = Get-IntuneManagedDevice | Where-Object {$_.deviceName -eq $DeviceName}
     $PrimaryUser = Get-GraphAzureADUser -Id $MangedDevice.userId
@@ -18,16 +20,16 @@
     
         }
 
-    $CustomObject
+    $CustomObject | Format-Table -AutoSize
 
 }
 
 function Get-AllLastLoggedOn {
 
     param (
-        [Parameter(Mandatory=$false)]
-        [String]
-        $Path)
+        [Parameter(Mandatory=$true)][String]$Username,
+        [Parameter(Mandatory=$false)][String]$Path
+    )
 
     $Output = @()
     $MangedDevices = Get-IntuneManagedDevice
@@ -57,7 +59,7 @@ function Get-AllLastLoggedOn {
 
     else {
 
-        $Output
+        $Output | Format-Table -AutoSize
 
     }
 
