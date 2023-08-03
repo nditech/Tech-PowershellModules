@@ -1,31 +1,69 @@
 <#
 .SYNOPSIS
-This script automates user management tasks such as user creation, modification, and deactivation in Active Directory based on information imported from an Excel spreadsheet.
+A script to automate the creation and management of Active Directory users based on an Excel spreadsheet.
 
 .DESCRIPTION
-This script will import data from specified worksheets in an Excel file and use this data to create, update, or deactivate user accounts in Active Directory. It provides an interactive interface for admins to select specific users to process. The script also logs all operations to a specified log file for easy tracking.
+This script takes in an Excel spreadsheet with details about employees' accounts. It then automatically creates, disables, or updates those accounts based on the input. In addition, it generates a log file that records the actions taken for each user.
 
 .PARAMETER filePath
 Specifies the path to the Excel file from which user data will be imported. This is a mandatory parameter.
 
 .PARAMETER logPath
-Specifies the path to the directory where the log file will be stored. If not specified, defaults to "C:\Scripts\Powershell\Logs\AD Account Managment\".
+Specifies the path to the directory where the log file will be stored. If not specified, defaults to "C:\logs\".
 
 .EXAMPLE
 Invoke-UserProcessing -filePath "C:\Users\Administrator\Documents\user_data.xlsx"
 
-Imports user data from the specified Excel file and processes user accounts accordingly. Logs are stored in the default log directory ("C:\Scripts\Powershell\Logs\AD Account Managment\").
+Imports user data from the specified Excel file and processes user accounts accordingly. Logs are stored in the default log directory ("C:\logs\").
 
 .EXAMPLE
 Invoke-UserProcessing -filePath "C:\Users\Administrator\Documents\user_data.xlsx" -logPath "D:\AD_Logs\"
 
 Imports user data from the specified Excel file and processes user accounts accordingly. Logs are stored in the specified log directory ("D:\AD_Logs\").
 
+.INPUTS
+The script accepts the path of an Excel spreadsheet as input.
+
+.OUTPUTS
+The script does not return any outputs. It does, however, generate a log file named "ADUserManagementLog.log" in the same directory as the script. This log file contains detailed information about the actions taken by the script.
+
 .NOTES
-- Ensure the Excel file is structured correctly and contains all necessary information.
-- You need the ActiveDirectory and ImportExcel modules installed in your PowerShell session to run this script.
-- This script must be run with an account that has the necessary permissions to create, modify, and deactivate user accounts in Active Directory.
-- The password generation function creates a password of 16 characters by default. This can be modified by changing the $Length value in the New-SecurePassword function.
+Please note that the spreadsheet must have certain columns named exactly as follows:
+
+In the "Comings" worksheet:
+- "Full Name"
+- "Email"
+- "Password"
+- "Team"
+- "Title"
+- "Manager"
+- "Location"
+- "Country"
+- "Union"
+- "Type"
+
+In the "Goings" worksheet:
+- "Email"
+
+In the "Transfers" worksheet:
+- "Full Name"
+- "Email"
+- "Team"
+- "Title"
+- "Manager"
+- "Location"
+- "Country"
+- "Union"
+- "Type"
+
+Each "Union" column should contain one of the following values: "Union", "Non-Union", "Management". This determines which AD groups the user is added to.
+
+Each "Type" column should contain one of the following values: "DC Staff", or leave it blank. This along with the "Team" value, can determine additional AD groups the user is added to.
+
+The "Manager" column should contain the email of the manager. This is used to set the manager in AD.
+
+.FUNCTIONALITY
+This script uses the Active Directory module for Windows PowerShell. Please ensure that this module is installed and loaded before running the script.
 #>
 
 Function Invoke-UserProcessing {
@@ -242,6 +280,96 @@ Function Invoke-UserProcessing {
         Write-Log "----------------------------------------------------"
     }
 
+    Function Add-UserToGroups {
+        param (
+            [Parameter(Mandatory=$true)]
+            [string] $userDN,
+            
+            [Parameter(Mandatory=$true)]
+            [string] $unionStatus,
+            
+            [Parameter(Mandatory=$true)]
+            [string] $department,
+            
+            [Parameter(Mandatory=$false)]
+            [string] $type = $null
+        )
+        
+        $groupMap = @{
+            'Union' = 'UnionGroupDN';
+            'Non-Union' = 'NonUnionGroupDN';
+            'Management' = 'ManagementGroupDN';
+        }
+        
+        $departmentGroupMap = @{
+            'Accounting' = @('Accounting_Team', 'Department1GroupDN2');
+            'Asia' = @('Asia_Team');
+            'Central and East Europe' = @('CEE_Team');
+            'Central and West Africa' = @('CEWA_Team');
+            'Elections' = @('Elections_Team');
+            'Eurasia' = @('Eurasia_Team');
+            'Human Resources' = @('Human_Resources_Team');
+            'Office Management' = @('Office_Management_Team');
+            'Program Coordination' = @('Program_Coordination_Team');
+            'Program Development' = @('Program_Development_Team');
+            'Southern and East Africa' = @('SEA_Team');
+
+            # Add more mappings as needed.
+        }
+    
+        $typeDepartmentGroupMap = @{
+            'DC Staff' = @{
+                'Asia' = 'Asia_DC';
+                'Central and East Europe' = 'CEE_DC';
+                'Central and West Africa' = 'CEWA_DC';
+                'Latin America and the Carribean' = @('LAC_DC')
+                # Add more mappings as needed.
+            }
+            'Country Staff' = @{
+                'Central and West Africa' = 'CEWA_Field';
+                'Latin America and the Carribean' = @('LAC_Field')
+                # Add more mappings as needed.
+            }
+            # Add more mappings as needed.
+        }
+        
+        # Check if the unionStatus is valid.
+        if ($groupMap.ContainsKey($unionStatus)) {
+            # Get the corresponding group DN.
+            $groupDN = $groupMap[$unionStatus]
+            
+            # Add user to the group.
+            Add-ADGroupMember -Identity -Server $domainController $groupDN -Members $userDN -ErrorAction SilentlyContinue
+        } else {
+            Write-Host "Invalid union status: $unionStatus"
+        }
+        
+        # Check if the department is valid.
+        if ($departmentGroupMap.ContainsKey($department)) {
+            # Get the corresponding group DNs.
+            $groupDNs = $departmentGroupMap[$department]
+            
+            foreach ($groupDN in $groupDNs) {
+                # Add user to the group.
+                Add-ADGroupMember -Identity -Server $domainController $groupDN -Members $userDN -ErrorAction SilentlyContinue
+            }
+        } else {
+            Write-Host "Invalid department: $department"
+        }
+    
+        # Check if the type and department combination is valid.
+        if ($null -ne $type -and $typeDepartmentGroupMap.ContainsKey($type) -and $typeDepartmentGroupMap[$type].ContainsKey($department)) {
+            # Get the corresponding group DN.
+            $groupDN = $typeDepartmentGroupMap[$type][$department]
+            
+            # Add user to the group.
+            Add-ADGroupMember -Identity -Server $domainController $groupDN -Members $userDN -ErrorAction SilentlyContinue
+        } elseif ($null -ne $type) {
+            Write-Host "Invalid type: $type"
+        }
+    }
+    
+    
     Function Disable-UserAccount ($user) {
         $email = $user.'Email Address' -join ""
         $existingUser = Get-ADUser -Filter {mail -eq $email} -ErrorAction SilentlyContinue
